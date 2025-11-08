@@ -1,0 +1,204 @@
+---
+title: "Documentación del Script: Data Preprocessing, Metrics, and Association Analysis"
+author: "Garikoitz Artola Obando"
+date: "2025-11-09"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(reshape2)
+```
+
+Este R markdown documenta y ejemplifica las funciones principales del script `process_data.R`.
+
+## Librerías y Dependencias
+
+-   `ggplot2`
+-   `reshape2`
+
+Instalación de dependencias:
+
+```{r install-packages, eval=FALSE}
+install.packages("ggplot2")
+install.packages("reshape2")
+```
+
+## Cargar librerias
+
+```{r load-packages, eval=TRUE}
+library(ggplot2)
+library(reshape2)
+```
+
+## Cargar funciones
+
+```{r load-functions, eval=TRUE}
+source("process_data.R")
+```
+
+## 1. Discretización de variables numéricas
+
+Las funciones transforman variables numéricas en variables categóricas mediante discretización.
+
+### `discretizeEW(x, num.bins)`
+
+-   **Entrada:**
+
+    -   `x`: vector numérico
+    -   `num.bins`: número de bins
+
+-   **Salida:** lista con `factor` y `cut.points`
+
+-   **Descripción interna:** Crea bins de igual ancho, maneja valores NA y caso de único valor.
+
+### `discretizeEF(x, num.bins)`
+
+-   **Entrada:**
+
+    -   `x`: vector numérico
+    -   `num.bins`: número de bins
+
+-   **Salida:** lista con `factor` y `cut.points`
+
+-   **Descripción interna:** Crea bins con igual frecuencia, maneja NA y distribuye restos.
+
+### `dis.atribute(atribute, num.bin, mode = FALSE)`
+
+-   **Entrada:**
+
+    -   `atribute`: vector numérico
+    -   `num.bin`: número de bins
+    -   `mode`: `FALSE` = igual ancho, `TRUE` = igual frecuencia
+
+-   **Salida:** lista con `factor` y `cut.points`
+
+### `dis.dataset(dataset, num.bin, mode = FALSE)`
+
+-   **Entrada:** dataset (data.frame), `num.bin`, `mode`
+-   **Salida:** dataset con columnas numéricas discretizadas
+-   **Descripción interna:** Aplica `dis.atribute` sobre todas las columnas numéricas
+
+### Ejemplo:
+
+```{r}
+x <- 1:10
+discrete_ew <- discretizeEW(x, 3)
+discrete_ef <- discretizeEF(x, 3)
+discrete_ew
+discrete_ef
+
+df <- data.frame(a = 1:5, b = 6:10)
+dis.dataset(df, 2)
+```
+
+## 2. Cálculo de métricas
+
+La función calcula métricas para los atributos de un dataset: varianza y AUC para las variables contínuas y entropía para las discretas.
+
+### `metrics_dataset(dataset, class.var = NULL, discretize_for_auc = FALSE, bins = 10, verbose = FALSE)`
+
+-   **Entrada:** dataset, variable de clase opcional
+-   **Salida:** data.frame con columnas: variable, type, variance, entropy, auc
+-   **Descripción interna:** Calcula métricas según tipo de variable
+
+### Ejemplo:
+
+```{r}
+df <- data.frame(num = 1:5,
+                 num_cun = rnorm(5, mean=0, sd=1),
+                 cat = sample(x=c('a', 'b', 'c'), size=5, replace=TRUE),
+                 class = sample(x=c(0, 1), size=5, replace=TRUE))
+metrics <- metrics_dataset(df, class.var = 'class')
+metrics
+```
+
+## 3. Normalización y Estandarización
+
+Funciones para escalar datos numéricos.
+
+### `normalize_vector(v)` y `standardize_vector(v)`
+
+-   **Entrada:** vector numérico
+-   **Salida:** vector normalizado o estandarizado
+-   **Descripción interna:** Maneja NAs y casos de rango/desviación cero
+
+### `normalize_dataset(df)` y `standardize_dataset(df)`
+
+-   **Entrada:** DataFrame
+-   **Salida:** DataFrame con columnas numéricas escaladas
+-   **Descripción interna:** Aplica `normalize_vector` o `standardize_vector` por columna
+
+### Ejemplo:
+
+```{r}
+df_norm <- normalize_dataset(df)
+df_std <- standardize_dataset(df)
+df_norm
+df_std
+```
+
+## 4. Filtrado de variables
+
+La función filtra las variables en base a las métricas implementadas. Esto es, devuelve un nuevo dataset, donde todas las variables cumplan los requisitos indicados.
+
+### `filter_by_metric(dataset, metric = c("entropy","variance","auc"), threshold, class.var = NULL, bins = 10)`
+
+-   **Entrada:**
+
+    -   `dataset`: data.frame
+    -   `metric`: "entropy", "variance" o "auc"
+    -   `threshold`: valor mínimo
+    -   `class.var`: variable de clase para AUC
+
+-   **Salida:** dataset filtrado con variables que cumplen el umbral
+
+-   **Descripción interna:** Calcula métricas y conserva columnas que superan el threshold
+
+### Ejemplo:
+
+```{r}
+filtered <- filter_by_metric(df, metric = 'entropy', threshold = 0.5)
+filtered
+```
+
+## 5. Matriz de asociación por pares
+
+La función calcula la correlación (información mutua en el caso de variables categóricas) por pares entre variables de un dataset.
+
+### `pairwise_assoc_matrix(dataset, num.bin = 10, normalize_mi = TRUE, mode = FALSE)`
+
+-   **Entrada:** dataset, número de bins, `normalize_mi`, `mode`
+-   **Salida:** matriz de asociación (Pearson para num-num, MI normalizada para otros)
+-   **Descripción interna:** Discretiza columnas numéricas y calcula correlaciones/información mutua
+
+### Ejemplo:
+
+```{r}
+assoc_mat <- pairwise_assoc_matrix(df)
+assoc_mat
+```
+
+## 6. Visualización
+
+Funciones para plotear el AUC y para las matrices de correlación/información mutua.
+
+### `plot_auc(metrics_df)`
+
+-   **Entrada:** data.frame con columnas `auc`
+-   **Salida:** gráfico de barras mostrando AUC
+-   **Descripción interna:** Ordena variables por AUC y añade línea de referencia
+
+### `plot_assoc_matrix(mat)`
+
+-   **Entrada:** matriz de asociación
+-   **Salida:** heatmap usando ggplot2
+-   **Descripción interna:** Paleta azul-blanco-rojo, filas y columnas etiquetadas
+
+### Ejemplo:
+
+```{r}
+plot_auc(metrics)
+plot_assoc_matrix(assoc_mat)
+```
