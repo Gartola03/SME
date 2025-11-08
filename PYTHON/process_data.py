@@ -92,16 +92,24 @@ def entropy(x, base=2):
     x = pd.Series(x).dropna()
     if len(x) == 0:
         return 0.0
+
     probs = x.value_counts(normalize=True)
-    return float(-(probs * np.log(probs) / np.log(base)).sum())
+    probs = probs[probs > 0]
+
+    log_fn = np.log if base is None else (lambda p: np.log(p) / np.log(base))
+    return float(-(probs * log_fn(probs)).sum())
 
 
 def joint_entropy(x, y, base=2):
     df = pd.DataFrame({"x": x, "y": y}).dropna()
     if df.empty:
         return 0.0
-    probs = df.groupby(["x", "y"]).size() / len(df)
-    return float(-(probs * np.log(probs) / np.log(base)).sum())
+    probs = df.groupby(["x", "y"], observed=False).size() / len(df)
+
+    probs = probs[probs > 0]  # remove zero probabilities
+
+    log_fn = np.log if base is None else (lambda p: np.log(p) / np.log(base))
+    return float(-(probs * log_fn(probs)).sum())
 
 
 def mutual_information(x, y, base=2):
