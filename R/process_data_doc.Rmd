@@ -64,11 +64,11 @@ Las funciones transforman variables numéricas en variables categóricas mediant
 
 -   **Descripción interna:** Crea bins con igual frecuencia, maneja NA y distribuye restos.
 
-### `dis.atribute(atribute, num.bin, mode = FALSE)`
+### `dis.attribute(attribute, num.bin, mode = FALSE)`
 
 -   **Entrada:**
 
-    -   `atribute`: vector numérico
+    -   `attribute`: vector numérico
     -   `num.bin`: número de bins
     -   `mode`: `FALSE` = igual ancho, `TRUE` = igual frecuencia
 
@@ -78,7 +78,7 @@ Las funciones transforman variables numéricas en variables categóricas mediant
 
 -   **Entrada:** dataset (data.frame), `num.bin`, `mode`
 -   **Salida:** dataset con columnas numéricas discretizadas
--   **Descripción interna:** Aplica `dis.atribute` sobre todas las columnas numéricas
+-   **Descripción interna:** Aplica `dis.attribute` sobre todas las columnas numéricas
 
 ### Ejemplo:
 

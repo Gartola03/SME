@@ -1,16 +1,17 @@
+################################################################################
 # Script: Data Preprocessing, Metrics, and Association Analysis
 # ******************************************************************************
-# Description:
-#   This script provides functions for:
-#     1. Discretizing numeric variables (equal-width and equal-frequency)
-#     2. Computing dataset metrics (entropy, variance, AUC)
-#     3. Normalizing and standardizing numeric data
-#     4. Filtering variables by metrics
-#     5. Computing pairwise association matrices
-#     6. Plotting metrics and association matrices
+# Descripción:
+#   Este script proporciona funciones para:
+#     1. Discretizar variables numéricas (intervalos iguales y frecuencias iguales)
+#     2. Calcular métricas del conjunto de datos (entropía, varianza, AUC)
+#     3. Normalizar y estandarizar datos numéricos
+#     4. Filtrar variables según métricas
+#     5. Calcular matrices de asociación por pares
+#     6. Representar gráficamente métricas y matrices de asociación
 #
-# Author: Garikoitz Artola Obando (gartola008@ikasle.ehu.eus)
-# Date: 09/11/2025
+# Autor: Garikoitz Artola Obando (gartola008@ikasle.ehu.eus)
+# Fecha: 09/11/2025
 ################################################################################
 
 
@@ -19,8 +20,8 @@ library(ggplot2)
 library(reshape2)
 
 
+
 # AUXILIAR FUNCTIONS -----------------------------------------------------------
-# bin_width = (max(x) - min(x))/num.bins
 discretizeEW <- function(x, num.bins) {
   if (!is.numeric(x)) stop("discretizeEW: x must be numeric")
   if (!is.numeric(num.bins) || length(num.bins) != 1) stop("discretizeEW: num.bins must be single numeric")
@@ -47,7 +48,6 @@ discretizeEW <- function(x, num.bins) {
 }
 
 
-# num.perBin = num.values / num.bins
 discretizeEF <- function(x, num.bins) {
   if (!is.numeric(x)) stop("discretizeEF: x must be numeric")
   if (!is.numeric(num.bins) || length(num.bins) != 1) stop("discretizeEF: num.bins must be single numeric")
@@ -166,14 +166,14 @@ compute_auc_numeric <- function(x, class) {
 # FUNCTIONS --------------------------------------------------------------------
 
 # 1. DISCRETIZATION ------------------------------------------------------------
-dis.atribute <- function(atribute, num.bin, mode = FALSE) {
-  if (!is.numeric(atribute)) stop("Error: attribute is not numeric")
+dis.attribute <- function(attribute, num.bin, mode = FALSE) {
+  if (!is.numeric(attribute)) stop("Error: attribute is not numeric")
   if (!is.numeric(num.bin) || length(num.bin) != 1) stop("Error: num.bin must be a single numeric")
   if (!is.logical(mode) || length(mode) != 1) stop("Error: mode must be boolean (logical)")
   if (mode == FALSE) {
-    return(discretizeEW(atribute, num.bin))
+    return(discretizeEW(attribute, num.bin))
   } else {
-    return(discretizeEF(atribute, num.bin))
+    return(discretizeEF(attribute, num.bin))
   }
 }
 
@@ -413,7 +413,7 @@ plot_auc <- function(metrics_df) {
   bar_positions <- barplot(
     height = aucs,
     names.arg = vars,
-    las = 2,                 # vertical x labels
+    las = 2,
     ylim = c(0, 1),
     col = "skyblue",
     border = "gray40",
@@ -421,7 +421,7 @@ plot_auc <- function(metrics_df) {
     ylab = "AUC"
   )
 
-  abline(h = 0.5, col = "gray50", lty = 2)  # reference line at random classifier
+  abline(h = 0.5, col = "gray50", lty = 2)
 
   invisible(NULL)
 }

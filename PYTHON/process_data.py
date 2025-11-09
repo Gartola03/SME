@@ -1,19 +1,18 @@
 ################################################################################
 # Script: Data Preprocessing, Metrics, and Association Analysis
 # ******************************************************************************
-# Description:
-#   This script provides functions for:
-#     1. Discretizing numeric variables (equal-width and equal-frequency)
-#     2. Computing dataset metrics (entropy, variance, AUC)
-#     3. Normalizing and standardizing numeric data
-#     4. Filtering variables by metrics
-#     5. Computing pairwise association matrices
-#     6. Plotting metrics and association matrices
+# Descripción:
+#   Este script proporciona funciones para:
+#     1. Discretizar variables numéricas (intervalos iguales y frecuencias iguales)
+#     2. Calcular métricas del conjunto de datos (entropía, varianza, AUC)
+#     3. Normalizar y estandarizar datos numéricos
+#     4. Filtrar variables según métricas
+#     5. Calcular matrices de asociación por pares
+#     6. Representar gráficamente métricas y matrices de asociación
 #
-# Author: Garikoitz Artola Obando (gartola008@ikasle.ehu.eus)
-# Date: 09/11/2025
+# Autor: Garikoitz Artola Obando (gartola008@ikasle.ehu.eus)
+# Fecha: 09/11/2025
 ################################################################################
-
 
 
 # LOAD LIBRARIES ---------------------------------------------------------------
@@ -167,7 +166,7 @@ def compute_auc_numeric(x, class_col):
 
 
 # 1. DISCRETIZATION ------------------------------------------------------------
-def dis_atribute(attribute, num_bin, mode=False):
+def dis_attribute(attribute, num_bin, mode=False):
     if not np.issubdtype(np.asarray(attribute).dtype, np.number):
         raise ValueError("attribute must be numeric")
     if not isinstance(num_bin, int):
@@ -183,7 +182,7 @@ def dis_dataset(dataset, num_bin, mode=False):
     num_cols = df.select_dtypes(include=np.number).columns
 
     for col in num_cols:
-        d = dis_atribute(df[col].values, num_bin, mode)
+        d = dis_attribute(df[col].values, num_bin, mode)
         df[col] = d["factor"]
 
     return df
